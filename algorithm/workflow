@@ -1,0 +1,7 @@
+1. User input a query q.
+2. If q in DiseaseGraph, output it.
+3. Else, search in pubmed given q, output a list of id of abstracts.
+4. For ids in PreData, we extracts those data.
+5. For ids not in PreData, we download from Pubmed and preprocess them, save in database.
+6. Use the data from step 4 and 5 to builda DiseaseGraph, output it.
+
