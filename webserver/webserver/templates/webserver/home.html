@@ -1,0 +1,26 @@
+{% extends "webserver/base.html" %}
+{% block title %}home{% endblock %}
+{% block extraCss %}
+	<link href="static/webserver/css/home.less" rel="stylesheet/less" type="text/css">
+{% endblock %}
+
+
+{% block body %}
+<div class="bodyContainer">
+<!-- 	<div class="search input-group input-group-hg input-group-rounded">
+        <input type="text" class="form-control" placeholder="Search" id="search-query-2">
+        <span class="input-group-btn">
+          <button type="submit" class="form-control btn btn-default"><span class="fui-search"></span></button>
+        </span> 
+  </div> -->
+              <div class="form-group">
+                <div class="input-group">                               
+                  <input type="text" class="form-control" placeholder="Search" id="search-query-2">
+                  <span class="input-group-btn">
+                    <button type="submit" class="btn btn-default"><span class="fui-search"></span></button>
+                  </span>
+                </div>
+              </div>
+</div>
+  
+{% endblock %}
