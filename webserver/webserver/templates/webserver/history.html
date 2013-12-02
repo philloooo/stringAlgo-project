@@ -13,19 +13,13 @@
           <button type="submit" class="form-control btn btn-default"><span class="fui-search"></span></button>
         </span> 
   </div> -->
-              <form class="search-form form-group" action='/search' method='post'>
-                <div class="input-group">                               
-                  <input type="text" class="form-control" name='disease' placeholder="Search for a disease" id="search-query-2">
-                  <span class="input-group-btn">
-                    <a class="search-button btn btn-default"><span class="fui-search"></span></a>
-                  </span>
-                </div>
-              {% csrf_token %}
-              </form>
+              {% for history in histories %}
+              <div>{{history.disease}}</div>
+              {% endfor %}
 </div>
   
 {% endblock %}
 {% block extraScript %}
-    <script src="static/webserver/js/home.js" %}"></script>
-
+  <script type="text/javascript">
+  </script>
 {% endblock %}

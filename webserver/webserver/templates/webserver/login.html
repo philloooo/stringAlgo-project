@@ -25,14 +25,14 @@
 				<div class="loginBox face front">
 				{% endif %}
 					<form class="form-signin" method='post' action="{% url 'django.contrib.auth.views.login' %}">
-						<input type="text" class="form-control" name='username' placeholder="Username" autofocus="">
+						<input type="text" class="form-control flat" name='username' placeholder="Username" autofocus="">
 						<div class="password-container">
 							<input type="password" name='password' class="form-control" placeholder="Password">
-							<a href="#" class="glyphicon glyphicon-question-sign forgetPassword"></a>
+							<!-- <a href="#" class="glyphicon glyphicon-question-sign forgetPassword"></a> -->
 						</div>
-					<label class="checkbox">
+					<!-- <label class="checkbox">
 			          <input type="checkbox" value="remember-me"> Remember me
-			        </label>
+			        </label> -->
 					<button  class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
 					{% for field,error in form.errors.items %}
 					<p>{{ field }}, {{error}}</p>
