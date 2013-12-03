@@ -26,7 +26,7 @@ def OutputRelations(abstractFileName,seta,negSet,neutralSet,negationSet,posSet):
     countsentences=0
     def isGene(x,t):
         #checks if gene 'x' in a list of tokens 't' is really a gene or a variable with the same name 
-        if len(t)>1:
+        if len(t)>1 and len(x)>1:
             
             if t.index(x) ==0:
                 if t[t.index(x)+1] in [">","<","=","score"]:
@@ -155,7 +155,7 @@ def OutputRelations(abstractFileName,seta,negSet,neutralSet,negationSet,posSet):
             direction = 0
             for x in tokens:
                 
-                if x in gene_names and x not in currentlist:
+                if x in gene_names and x not in currentlist and isGene(x,tokens):
                     genes.append(x)
                     num_genes+=1
                     currentlist.append(x)
