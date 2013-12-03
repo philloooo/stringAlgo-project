@@ -1,7 +1,7 @@
 {% extends "webserver/base.html" %}
 {% block title %}home{% endblock %}
 {% block extraCss %}
-	<link href="static/webserver/css/home.less" rel="stylesheet/less" type="text/css">
+	<link href="/static/webserver/css/home.less" rel="stylesheet/less" type="text/css">
 {% endblock %}
 
 
@@ -13,9 +13,13 @@
           <button type="submit" class="form-control btn btn-default"><span class="fui-search"></span></button>
         </span> 
   </div> -->
-              {% for history in histories %}
-              <div>{{history.disease}}</div>
-              {% endfor %}
+  <div class='history'>
+    <div class='title'>Search History</div>
+    {% for history in histories %}
+    <a href={% url 'historyDisease' history.disease %}>{{history.disease}}</a>
+    {% endfor %}
+  </div>
+  
 </div>
   
 {% endblock %}

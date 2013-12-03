@@ -1,3 +1,6 @@
+import os
+import associationFinder
+import visual
 import time
 import urllib3
 import xml.etree.ElementTree as ET
@@ -46,7 +49,16 @@ def search(request):
 	disease=request.POST['disease']
 	if len(disease)==0:
 		return render(request,'webserver/result.html',context)
-	print disease
+
+	# Check if the disease is searched before
+	if os.path.isdir('./webserver/static/webserver/diseases/'+disease):
+		if len(Graph.objects.filter(disease=disease))>=1:
+			graph=Graph.objects.get(disease=disease)
+			svg=graph.path
+			context['svg']=svg
+			return render(request,'webserver/result.html',context)
+
+	
 	# store the history
 	if len(History.objects.filter(user=request.user,disease=disease))==0:
 		history=History(user=request.user,disease=disease)
@@ -56,7 +68,7 @@ def search(request):
 	http = urllib3.PoolManager()
 	r = http.request('GET', 
 		'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term='+\
-		parsed+'+AND+2013[pdat]&usehistory=y')
+		parsed+'&usehistory=y&retmax=10000')
 	XML=ET.fromstring(r.data)
 	ids=[]
 	for child in XML:
@@ -68,35 +80,60 @@ def search(request):
 
 
 	# get abstract
+	posFileName='./wordDictionaries/posWords.txt'
+	geneFileName='./wordDictionaries/finalGeneSymbols.txt'
+	neutralFileName='./wordDictionaries/neutralWords.txt'
+	negationsFileName='./wordDictionaries/negations.txt'
+	negFileName='./wordDictionaries/negWords.txt'
+	posSet= set(associationFinder.readf(posFileName))
+	seta= set(associationFinder.readf(geneFileName))
+	negSet= set(associationFinder.readf(negFileName))
+	neutralSet= set(associationFinder.readf(neutralFileName))
+	negationSet= set(associationFinder.readf(negationsFileName))
+
 	listOfrelationships=[]
 	leftIds=[]
 	for abstractId in ids:
-		if len(ParsedSentence.objects.filter(abstractId=abstractId))>1:
+		if len(UselessAbstract.objects.filter(abstractId=abstractId))>0:
+			continue
+		if len(ParsedSentence.objects.filter(abstractId=abstractId))>0:
 			listOfSentences=ParsedSentence.objects.filter(abstractId=abstractId)
 			# Parse it to listof relationships
 			for each in listOfSentences:
 				listOfrelationships.append([each.abstractId,each.sentence,each.gene1,each.gene2,each.relationship])
 
 		else:
+			# print abstractId
 			leftIds.append(abstractId)
 	for abstractId in leftIds:
 		abstract=http.request('GET',
 			'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&id='+\
 			abstractId+'&retmode=text&rettype=abstract')
-		print abstract.data
-	# 		parsedList=parseAbstract(abstract.data)
 
-	# 		for sentence in parsedList:
-	# 			[pmid,rawsentence,gene1,gene2,relationship]=sentence
-	# 			newSentence=ParsedSentence(abstractId=int(pmid),sentence=rawsentence,
-	# 				gene1=gene1,gene2=gene2,relationship=relationship,disease=disease)
-	# 			newSentence.save()
-	# 			listOfrelationships.append([pmid,rawsentence,gene1,gene2,relationship])
+	
 
+		parsedList=associationFinder.OutputRelations(abstract.data,seta,negSet,neutralSet,negationSet,posSet)
+		# if len(parsedList)>0:
+		# print parsedList
+		if len(parsedList)==0:
+			uselessAbstract=UselessAbstract(abstractId=abstractId)
+			uselessAbstract.save()
 
+		for sentence in parsedList:
+			[pmid,rawsentence,gene1,gene2,relationship]=sentence
+			# print pmid
+			newSentence= ParsedSentence(abstractId=pmid,sentence=rawsentence,
+				gene1=gene1,gene2=gene2,relationship=relationship,disease=disease)
+			newSentence.save()
+			listOfrelationships.append([pmid,rawsentence,gene1,gene2,relationship])
 
-	# makeGraph(listOfrelationships)
+	# print listOfrelationships
 
+	visual.makeGraph(listOfrelationships,disease)
+	svg='/static/webserver/diseases/'+disease+'/result.svg'
+	newGraph=Graph(path=svg,disease=disease)
+	newGraph.save()
+	context['svg']=svg
 	return render(request,'webserver/result.html',context)
 
 
@@ -106,4 +143,19 @@ def history(request):
 	context={}
 	context['histories']=histories
 	return render(request,'webserver/history.html',context)
-	
+
+@login_required
+def historyDisease(request,disease):
+	context={}
+	graph=Graph.objects.get(disease=disease)
+	context['svg']=graph.path
+	# print context
+	return render(request,'webserver/result.html',context)
+
+@login_required
+def learnedKnowledge(request):
+	context={}
+	unsure=ParsedSentence.objects.filter(relationship=0)
+	pos=ParsedSentence.objects.filter(relationship=1)
+	neg=ParsedSentence.objects.filter(relationship=-1)
+	return render(request,)

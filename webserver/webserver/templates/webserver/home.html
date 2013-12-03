@@ -1,7 +1,9 @@
 {% extends "webserver/base.html" %}
 {% block title %}home{% endblock %}
 {% block extraCss %}
-	<link href="static/webserver/css/home.less" rel="stylesheet/less" type="text/css">
+    {% load staticfiles %}
+
+  	<link href="/static/webserver/css/home.less" rel="stylesheet/less" type="text/css">
 {% endblock %}
 
 
