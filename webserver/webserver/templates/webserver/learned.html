@@ -21,7 +21,7 @@
     </div>
     {% for knowledge in unsure %}
     <div class='each-block sentence-block'>
-      <p class='sentence'>{{knowledge.sentence}}, {{knowledge.relationship}}</p> 
+      <p class='sentence'>{{knowledge.sentence}}</p> 
 
       {% if knowledge.relationship  == 1 %}
       <p class='relationship'>{{knowledge.gene1}}, {{knowledge.gene2}} :Positive</p>
@@ -33,10 +33,10 @@
     </div>
     <div class='correction-block'>
       <p>Correction:</p>
-      <a href="#">Invalid genes</a>
-      <a href="#">Positive</a>
-      <a href="#">Negative</a>
-      <a href="#">Neutral</a>
+      <a href="{% url 'crowdSourcing' sentenceId=knowledge.id info='wrongGene' %}">Invalid genes</a>
+      <a href="{% url 'crowdSourcing' sentenceId=knowledge.id info='1' %}">Positive</a>
+      <a href="{% url 'crowdSourcing' sentenceId=knowledge.id info='2' %}">Negative</a>
+      <a href="{% url 'crowdSourcing' sentenceId=knowledge.id info='0' %}">Neutral</a>
     </div>
     {% endfor %}
   </div>

@@ -1,0 +1,32 @@
+body {
+font-family: Verdana, Geneva, Arial, sans-serif;
+font-size: small;
+margin: 0px;
+padding: 50px;
+}
+table
+{
+border-collapse:collapse;
+}
+table, td, th
+{
+border:1px solid black;
+font-weight: normal;
+}
+td
+{
+padding:15px;
+}
+table, td, th
+{
+border:1px solid green;
+}
+th
+{
+background-color:#20B2AA;
+color:white;
+}
+.cellcolor {
+background-color: #DCDCDC;
+}
+

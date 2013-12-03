@@ -151,12 +151,14 @@ def OutputRelations(abstractFileName,seta,negSet,neutralSet,negationSet,posSet):
             genes = []
             #print tokens,tokenscopy
             relation = 2
+            currentlist = []
             direction = 0
             for x in tokens:
                 
-                if x in gene_names:
+                if x in gene_names and x not in currentlist:
                     genes.append(x)
                     num_genes+=1
+                    currentlist.append(x)
                     #store = tokens.index(x)
             
             in1 = tokens.index(genes[0])

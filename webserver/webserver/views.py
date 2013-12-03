@@ -1,6 +1,7 @@
 import random
 import os
 import associationFinder
+import kmeans
 import visual
 import time
 import urllib3
@@ -58,7 +59,8 @@ def search(request):
 			svg=graph.path
 			context['svg']=svg
 			return render(request,'webserver/result.html',context)
-
+		else:
+			os.system('rm -rf '+'./webserver/static/webserver/diseases/'+disease)
 	
 	# store the history
 	if len(History.objects.filter(user=request.user,disease=disease))==0:
@@ -94,11 +96,13 @@ def search(request):
 
 	listOfrelationships=[]
 	leftIds=[]
+	usedIds=[]
 	for abstractId in ids:
 		if len(UselessAbstract.objects.filter(abstractId=abstractId))>0:
 			continue
 		if len(ParsedSentence.objects.filter(abstractId=abstractId))>0:
 			listOfSentences=ParsedSentence.objects.filter(abstractId=abstractId)
+			usedIds.append(abstractId)
 			# Parse it to listof relationships
 			for each in listOfSentences:
 				listOfrelationships.append([each.abstractId,each.sentence,each.gene1,each.gene2,each.relationship])
@@ -106,6 +110,14 @@ def search(request):
 		else:
 			# print abstractId
 			leftIds.append(abstractId)
+	svg='/static/webserver/diseases/'+disease+'/result.svg'
+	newGraph=Graph(path=svg,disease=disease)
+	newGraph.save()
+	for abstractId in (usedIds+leftIds):
+		pmid,created=Pmid.objects.get_or_create(abstractId=abstractId)
+		newGraph.pmid.add(pmid)
+	newGraph.save()
+
 	for abstractId in leftIds:
 		abstract=http.request('GET',
 			'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&id='+\
@@ -132,9 +144,7 @@ def search(request):
 	# print listOfrelationships
 
 	visual.makeGraph(listOfrelationships,disease)
-	svg='/static/webserver/diseases/'+disease+'/result.svg'
-	newGraph=Graph(path=svg,disease=disease)
-	newGraph.save()
+	
 	context['svg']=svg
 	return render(request,'webserver/result.html',context)
 
@@ -176,3 +186,32 @@ def learnedKnowledge(request):
 	random.shuffle(unsure)
 	context['unsure']=unsure
 	return render(request,'webserver/learned.html',context)
+
+@login_required
+def crowdSourcing(request,sentenceId,info):
+	s=ParsedSentence.objects.get(id=sentenceId)
+	print sentenceId
+	if info=='wrongGene':
+		disease=s.disease
+		print disease
+		s.delete()
+		graph=Graph.objects.get(disease=disease)
+		pmids=graph.pmid.all()
+		sentences=[]
+		for pmid in pmids:
+			print 'pmid', pmid.abstractId
+			sentences+=ParsedSentence.objects.filter(abstractId=pmid.abstractId)
+			print len(sentences)
+		listOfSentences=[]
+		for sentence in sentences:
+			listSentence=[sentence.abstractId,sentence.sentence,sentence.gene1,sentence.gene2,sentence.relationship]
+			listOfSentences.append(listSentence)
+		# kmeans.clusterResults(listOfSentences)
+		os.system('rm -rf '+'./webserver/static/webserver/diseases/'+disease)
+		print 'listofsentence:',listOfSentences
+		visual.makeGraph(listOfSentences,disease)
+
+	return redirect('/learnedKnowledge')
+	# elif info!=str(s.relationship):
+
+
