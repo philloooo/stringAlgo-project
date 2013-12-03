@@ -137,7 +137,6 @@ def OutputRelations(abstractFileName,seta,negSet,neutralSet,negationSet,posSet):
             
             rlist = [0,0,0]
             #sentence = storage[id]
-            relation = "none"
             
             tokens = nltk.word_tokenize(sentence)
             tokenscopy = copy.deepcopy(tokens)
@@ -201,7 +200,8 @@ def OutputRelations(abstractFileName,seta,negSet,neutralSet,negationSet,posSet):
                 elif direction == 1 :
                     rlist = [genes[1],genes[0],relation]
                     #print genes[1], relation, genes[0]
-                if relation!="none":
+                # if relation!="none":
+                if True:
                     #the above condition is so that it does not output sentences for which no relation
                     #has been found. This makes analysis easier. Must change this during final program.
                     sentencedb[countsentences]=sentence

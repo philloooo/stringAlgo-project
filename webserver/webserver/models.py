@@ -18,7 +18,7 @@ class ParsedSentence(models.Model):
 	sentence=models.CharField(max_length=100)
 	gene1=models.CharField(max_length=100)
 	gene2=models.CharField(max_length=100)
-
+	# score=models.IntegerField(blank=True)
 	# reletionships=models.ManyToManyField(Relationship)
 	relationship=models.IntegerField(blank=True)
 

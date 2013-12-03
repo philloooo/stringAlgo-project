@@ -1,5 +1,6 @@
 @node:gray;
 @node-text:darken(@node,10%);
+@header:#eceef0;
 .search {
 	width: 50%;
 	margin: auto;
@@ -68,5 +69,53 @@ embed {
 				}
 			}
 		}
+
+}
+.learned{
+	width: 90%;
+	margin: auto;
+	.title {
+		font-size: 2em;
+		border-bottom: 1px solid #999;
+		padding-bottom: 10px;
+		margin-bottom: 50px;
+	}
+	.sentence-block {
+		overflow: hidden;
+	}
+	.sentence-title {
+		font-weight: bold;
+	}
+	.sentence-block>p{
+		float: left;
+		display: block;
+	}
+	.sentence {
+		width: 70%;
+		padding-right: 20px;
+	}
+	.relationship {
+		padding-left: 20px;
+		width: 30%;
+	}
+	.each-block .relationship{
+		border-left: 2px solid darken(@header,10%);
+
+	}
+	.each-block .sentence{
+		color:gray;
+	}
+	.correction-block {
+		padding-bottom: 20px;
+		// border-bottom: 1px solid gray;
+		* {
+			display: inline-block;
+		}
+		a {
+			border-radius: 3px;
+			background: @header;
+			padding:1px 3px;
+		}
+	}
 
 }

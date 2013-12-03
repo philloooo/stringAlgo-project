@@ -103,6 +103,8 @@ def addToHTML(relation,path):
                 value = "Positive"
             elif(relation[i] == -1):
                 value = "Negative"
+            elif relation[i]==2:
+                value='None'
             else:
                 value = "Neutral"
         else:

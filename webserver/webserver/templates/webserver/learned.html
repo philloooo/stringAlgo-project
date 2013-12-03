@@ -1,0 +1,50 @@
+{% extends "webserver/base.html" %}
+{% block title %}home{% endblock %}
+{% block extraCss %}
+	<link href="/static/webserver/css/home.less" rel="stylesheet/less" type="text/css">
+{% endblock %}
+
+
+{% block body %}
+<div class="bodyContainer">
+<!-- 	<div class="search input-group input-group-hg input-group-rounded">
+        <input type="text" class="form-control" placeholder="Search" id="search-query-2">
+        <span class="input-group-btn">
+          <button type="submit" class="form-control btn btn-default"><span class="fui-search"></span></button>
+        </span> 
+  </div> -->
+  <div class='learned'>
+    <div class='title'>Learned knowledge</div>
+    <div class='sentence-block sentence-title'>
+      <p class='sentence' style='text-align:center'>Sentence</p>
+      <p class='relationship'>Relationship</p>
+    </div>
+    {% for knowledge in unsure %}
+    <div class='each-block sentence-block'>
+      <p class='sentence'>{{knowledge.sentence}}, {{knowledge.relationship}}</p> 
+
+      {% if knowledge.relationship  == 1 %}
+      <p class='relationship'>{{knowledge.gene1}}, {{knowledge.gene2}} :Positive</p>
+      {% elif knowledge.relationship == -1 %}
+      <p class='relationship'>{{knowledge.gene1}}, {{knowledge.gene2}} :Negative</p>
+      {% else %}
+      <p class='relationship'>{{knowledge.gene1}}, {{knowledge.gene2}} :Neutral</p>
+      {% endif %}
+    </div>
+    <div class='correction-block'>
+      <p>Correction:</p>
+      <a href="#">Invalid genes</a>
+      <a href="#">Positive</a>
+      <a href="#">Negative</a>
+      <a href="#">Neutral</a>
+    </div>
+    {% endfor %}
+  </div>
+  
+</div>
+  
+{% endblock %}
+{% block extraScript %}
+  <script type="text/javascript">
+  </script>
+{% endblock %}

@@ -1,3 +1,4 @@
+import random
 import os
 import associationFinder
 import visual
@@ -68,7 +69,7 @@ def search(request):
 	http = urllib3.PoolManager()
 	r = http.request('GET', 
 		'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term='+\
-		parsed+'&usehistory=y&retmax=10000')
+		parsed+'&usehistory=y&retmax=1000')
 	XML=ET.fromstring(r.data)
 	ids=[]
 	for child in XML:
@@ -122,8 +123,9 @@ def search(request):
 		for sentence in parsedList:
 			[pmid,rawsentence,gene1,gene2,relationship]=sentence
 			# print pmid
+
 			newSentence= ParsedSentence(abstractId=pmid,sentence=rawsentence,
-				gene1=gene1,gene2=gene2,relationship=relationship,disease=disease)
+				gene1=gene1,gene2=gene2,relationship=relationship,disease=disease,score=relationship*100)
 			newSentence.save()
 			listOfrelationships.append([pmid,rawsentence,gene1,gene2,relationship])
 
@@ -155,7 +157,22 @@ def historyDisease(request,disease):
 @login_required
 def learnedKnowledge(request):
 	context={}
-	unsure=ParsedSentence.objects.filter(relationship=0)
+	unsure=ParsedSentence.objects.filter(relationship=2)
+	
 	pos=ParsedSentence.objects.filter(relationship=1)
 	neg=ParsedSentence.objects.filter(relationship=-1)
-	return render(request,)
+	if len(pos)>5:
+		pos=pos[0:5]
+	else:
+		pos=pos[0:len(pos)]
+	print pos
+	if len(neg)>5:
+		neg=neg[0:5]
+	else:
+		neg=neg[0:len(neg)]
+	unsure=unsure[0:6]
+	print type(unsure),type(pos),type(neg)
+	unsure=list(unsure)+list(pos)+list(neg)
+	random.shuffle(unsure)
+	context['unsure']=unsure
+	return render(request,'webserver/learned.html',context)
