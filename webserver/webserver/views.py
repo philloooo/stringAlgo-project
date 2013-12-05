@@ -48,7 +48,7 @@ def home(request):
 def search(request):
 	context={}
 	# get abstracts id
-	disease=request.POST['disease']
+	disease='-'.join(request.POST['disease'].split())
 	if len(disease)==0:
 		return render(request,'webserver/result.html',context)
 
@@ -61,17 +61,20 @@ def search(request):
 			return render(request,'webserver/result.html',context)
 		else:
 			os.system('rm -rf '+'./webserver/static/webserver/diseases/'+disease)
-	
+	check=Graph.objects.filter(disease=disease)
+	if len(check)>=1:
+		check.delete()
+
 	# store the history
 	if len(History.objects.filter(user=request.user,disease=disease))==0:
 		history=History(user=request.user,disease=disease)
 		history.save()
 
-	parsed='+'.join(disease.split())
+	parsed='+'.join(disease.split('-'))
 	http = urllib3.PoolManager()
 	r = http.request('GET', 
 		'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term='+\
-		parsed+'&usehistory=y&retmax=1000')
+		parsed+'&usehistory=y&retmax=100')
 	XML=ET.fromstring(r.data)
 	ids=[]
 	for child in XML:
@@ -93,7 +96,7 @@ def search(request):
 	negSet= set(associationFinder.readf(negFileName))
 	neutralSet= set(associationFinder.readf(neutralFileName))
 	negationSet= set(associationFinder.readf(negationsFileName))
-
+	fullNames=associationFinder.readf('./wordDictionaries/final_gene_list.txt')
 	listOfrelationships=[]
 	leftIds=[]
 	usedIds=[]
@@ -119,15 +122,48 @@ def search(request):
 	newGraph.save()
 
 	for abstractId in leftIds:
-		abstract=http.request('GET',
-			'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&id='+\
-			abstractId+'&retmode=text&rettype=abstract')
+		# abstract=http.request('GET',
+		# 	'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&id='+\
+		# 	abstractId+'&retmode=text&rettype=abstract')
 
+		abstractFileName = """1. Genome Res. 2007 Mar;17(3):311-9. Epub 2007 Feb 6.
+
+Sequencing and analysis of chromosome 1 of Eimeria tenella reveals a unique
+segmental organization.
+
+Ling KH, Rajandream MA, Rivailler P, Ivens A, Yap SJ, Madeira AM, Mungall K,
+Billington K, Yee WY, Bankier AT, Carroll F, Durham AM, Peters N, Loo SS, Isa MN,
+Novaes J, Quail M, Rosli R, Nor Shamsudin M, Sobreira TJ, Tivey AR, Wai SF, White
+S, Wu X, Kerhornou A, Blake D, Mohamed R, Shirley M, Gruber A, Berriman M, Tomley
+F, Dear PH, Wan KL.
+
+Malaysia Genome Institute, UKM-MTDC Smart Technology Centre, Universiti
+Kebangsaan Malaysia, 43600 UKM Bangi, Selangor DE, Malaysia.
+
+Eimeria tenella is an intracellular protozoan parasite that infects the
+intestinal tracts of domestic fowl and causes coccidiosis, a serious and
+sometimes lethal enteritis. Eimeria falls in the same phylum (Apicomplexa) as
+several human and animal parasites such as Cryptosporidium, Toxoplasma, and the
+malaria parasite, Plasmodium. Here we report the sequencing and analysis of the
+first chromosome of E. tenella, a chromosome believed to carry loci associated
+with drug resistance and known to differ between virulent and attenuated strains 
+of the parasite. The chromosome--which appears to be representative of the
+genome--is gene-dense and rich in simple-sequence repeats, many of which appear
+to give rise to repetitive amino acid tracts in the predicted proteins. Most
+striking is the segmentation of the chromosome into repeat-rich regions peppered 
+with transposon-like elements and telomere-like repeats, alternating with
+repeat-free regions. Predicted genes differ in character between the two types of
+segment, and the repeat-rich regions appear to be associated with
+strain-to-strain variation. QRFPR activates QRICH2 because I said so.
+
+PMCID: PMC1800922
+PMID: 17284678  [PubMed - indexed for MEDLINE]"""
 	
-
-		parsedList=associationFinder.OutputRelations(abstract.data,seta,negSet,neutralSet,negationSet,posSet)
+		parsedList=associationFinder.OutputRelations(abstractFileName,seta,negSet,neutralSet,negationSet,posSet,fullNames,6)
+		
+		# parsedList=associationFinder.OutputRelations(abstract.data,seta,negSet,neutralSet,negationSet,posSet,fullNames,6)
 		# if len(parsedList)>0:
-		# print parsedList
+		print parsedList
 		if len(parsedList)==0:
 			uselessAbstract=UselessAbstract(abstractId=abstractId)
 			uselessAbstract.save()
@@ -210,6 +246,7 @@ def crowdSourcing(request,sentenceId,info):
 		os.system('rm -rf '+'./webserver/static/webserver/diseases/'+disease)
 		print 'listofsentence:',listOfSentences
 		visual.makeGraph(listOfSentences,disease)
+
 
 	return redirect('/learnedKnowledge')
 	# elif info!=str(s.relationship):
