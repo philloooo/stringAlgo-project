@@ -52,10 +52,10 @@ def OutputRelations(abstractFileName,seta,negSet,neutralSet,negationSet,posSet,f
             elif (t[t.index(x)+1],t[t.index(x)-1])==(")","("):
                 if x in fullnamestore:
                     if fullnamestore[x]!="none":
-                        fullLength = len(d[x])
+                        fullLength = len(fullnamestore[x])
                         #full length is length of full name
-                        if t.index(x)>len(d[x])+2:
-                            if sentence[(t.index(x)-1-fullLength):(t.index(x)-1)]==d[x]:
+                        if t.index(x)>len(fullnamestore[x])+2:
+                            if sentence[(t.index(x)-1-fullLength):(t.index(x)-1)]==fullnamestore[x]:
                                 return True
                             else:
                                 return False
