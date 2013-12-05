@@ -71,7 +71,7 @@ def OutputRelations(abstractFileName,seta,negSet,neutralSet,negationSet,posSet,f
         ss=nltk.word_tokenize(s)
         numgenes=0
         existingGenes = []
-        for i in s:
+        for i in ss:
             if i in geneset and isGene(i,ss,s) and i not in existingGenes:
                 numgenes+=1
                 existingGenes.append(i)  
