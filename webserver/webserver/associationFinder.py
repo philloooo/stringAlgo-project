@@ -10,7 +10,8 @@ def readf(filename):
     file.close()
     return result
 
-def OutputRelations(abstractFileName,seta,negSet,neutralSet,negationSet,posSet):
+def OutputRelations(abstractFileName,seta,negSet,neutralSet,negationSet,posSet,fullNames,threshold):
+    #added threshold in input format
     #recent change: no longer using filename for abstract. instead, input the string of the abstract
                                                 
                                                 
@@ -22,11 +23,22 @@ def OutputRelations(abstractFileName,seta,negSet,neutralSet,negationSet,posSet):
     from nltk.stem import RegexpStemmer
     
     sentencedb = dict()
+    fullnamestore = dict()
+    a = readf(fullNames)
+    for i in a:
+        i = i.split(";")
+        if len(i)>1:
+            #storing the full names, using the short symbols as dict keys
+            fullnamestore[i[0]] = i[1]
+        else:
+            fullnamestore[i[0]] = "none"
     #sentencedb indexes the sentences by a unique identifier (int)
-    countsentences=0
-    def isGene(x,t):
+    
+    def isGene(x,t,sentence):
+        
+    
         #checks if gene 'x' in a list of tokens 't' is really a gene or a variable with the same name 
-        if len(t)>1 and len(x)>1:
+        if len(t)>1 and len(x)>2:
             
             if t.index(x) ==0:
                 if t[t.index(x)+1] in [">","<","=","score"]:
@@ -37,6 +49,17 @@ def OutputRelations(abstractFileName,seta,negSet,neutralSet,negationSet,posSet):
             elif(t[t.index(x)+1] in [">","<","=","score"])or (
                 t[t.index(x)-1] in [">","<","=","score"]):
                 return False
+            elif (t[t.index(x)+1],t[t.index(x)-1])==(")","("):
+                if x in fullnamestore:
+                    if fullnamestore[x]!="none":
+                        fullLength = len(d[x])
+                        #full length is length of full name
+                        if t.index(x)>len(d[x])+2:
+                            if sentence[(t.index(x)-1-fullLength):(t.index(x)-1)]==d[x]:
+                                return True
+                            else:
+                                return False
+                        
             else:
                 return True
             return True
@@ -45,11 +68,11 @@ def OutputRelations(abstractFileName,seta,negSet,neutralSet,negationSet,posSet):
 
     def countgenes(s,geneset):
         #counts the number of unique genes in a sentence  "s"
-        s=nltk.word_tokenize(s)
+        ss=nltk.word_tokenize(s)
         numgenes=0
         existingGenes = []
         for i in s:
-            if i in geneset and isGene(i,s) and i not in existingGenes:
+            if i in geneset and isGene(i,ss,s) and i not in existingGenes:
                 numgenes+=1
                 existingGenes.append(i)  
                 
@@ -133,6 +156,7 @@ def OutputRelations(abstractFileName,seta,negSet,neutralSet,negationSet,posSet):
             
         
     for id in storage:
+        countsentences=0
         for sentence in storage[id]:
             
             rlist = [0,0,0]
@@ -155,7 +179,7 @@ def OutputRelations(abstractFileName,seta,negSet,neutralSet,negationSet,posSet):
             direction = 0
             for x in tokens:
                 
-                if x in gene_names and x not in currentlist and isGene(x,tokens):
+                if x in gene_names and x not in currentlist and isGene(x,tokens,sentence):
                     genes.append(x)
                     num_genes+=1
                     currentlist.append(x)
@@ -165,7 +189,7 @@ def OutputRelations(abstractFileName,seta,negSet,neutralSet,negationSet,posSet):
             in2 = tokens.index(genes[1])
             indexx=0
             neg=1
-            if countWords(genes[0],genes[1],tokenscopy)<=10:
+            if countWords(genes[0],genes[1],tokenscopy)<=threshold:
                 
                 
                     
